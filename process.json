@@ -1,0 +1,11 @@
+[{
+	"name"        : "wxpuu-server",
+	"script"      : "app.js",
+	"cwd"         : ".",
+	"error_file" : "app-err.log",
+	"out_file"   : "app-out.log",
+	"one_launch_only"  : "true",
+	"env": {
+		"NODE_ENV": "production"
+	}
+}]

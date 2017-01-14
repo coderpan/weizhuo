@@ -97,7 +97,64 @@ module.exports = {
                 }
                 res.json(rsp);
                 connection.release();
-            })
+            });
+        });
+	},
+
+	shopquery(req, res, next) {
+        if (!req.body.openid || !req.body.token) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            };
+            return res.json(result);
+        }
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+			connection.query(sql.shop_queryid, [req.body.openid], function(err, result) {
+                if (result) {
+                    connection.query(sql.shop_query, [result[0].shopid], function(err, result) {
+                        if (result) {
+                            rsp = {
+                                code: 0,
+                                shopid: result[0].shopid,
+                                name: result[0].name,
+                                mobile: result[0].mobile,
+                                logo: result[0].logo,
+                                status: result[0].status,
+                                createtime: result[0].createtime
+                            };    
+                        }
+                        else {
+                            console.error("select error, ret:" + err.message);
+                            rsp = {
+                                code: 1010,
+                                msg:'查询店铺信息失败'
+                            };
+                        }
+                        res.json(rsp);
+                        connection.release();
+                    });
+                }
+                else {
+                    console.error("select error, ret:" + err.message);
+                    rsp = {
+                        code: 1010,
+                        msg:'查询店铺信息失败'
+                    };
+                    res.json(rsp);
+                    connection.release();
+                }
+            });
         });
 	},
 
@@ -147,7 +204,132 @@ module.exports = {
                 }
                 res.json(rsp);
                 connection.release();
-            })
+            });
         });
-	}
+	},
+
+	dealclass(req, res, next) {
+        if (!req.body.openid || !req.body.shopid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+            console.log(sql.shop_maxclassid);
+			connection.query(sql.shop_maxclassid, [req.body.shopid], function(err, result) {
+                var classid = result[0].classid;
+                connection.query(sql.shop_dealclass, [req.body.shopid, classid, req.body.name, new Date().getTime()/1000], 
+                 function(err, result) {
+                    if (result) {
+                        rsp = {
+                            code: 0,
+                            classid: classid
+                        };
+                    }
+                    else {
+                        console.error("replace error, ret:" + err.message);
+                        rsp = {
+                            code: 1040,
+                            msg:'添加/更新分类失败'
+                        };
+                    }
+                    res.json(rsp);
+                    connection.release();
+                    });
+                });
+        });
+    },
+
+	classquery(req, res, next) {
+        if (!req.body.openid || !req.body.shopid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+			connection.query(sql.shop_classlist, [req.body.shopid], function(err, result) {
+                if (result) {
+                    rsp = {
+                        code: 0,
+                        classlist: result
+                    };
+                }
+                else {
+                    console.error("select error, ret:" + err.message);
+                    rsp = {
+                        code: 1045,
+                        msg:'查询分类信息失败'
+                    };
+                }
+                res.json(rsp);
+                connection.release();
+            });
+        });
+    },
+
+	prodlist(req, res, next) {
+        if (!req.body.openid || !req.body.shopid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+			connection.query(sql.shop_prodlist, [req.body.shopid, req.body.classid], function(err, result) {
+                if (result) {
+                    rsp = {
+                        code: 0,
+                        classlist: result
+                    };
+                }
+                else {
+                    console.error("select error, ret:" + err.message);
+                    rsp = {
+                        code: 1035,
+                        msg:'查询商品列表失败'
+                    };
+                }
+                res.json(rsp);
+                connection.release();
+            });
+        });
+    }
 };

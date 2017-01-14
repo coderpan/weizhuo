@@ -45,11 +45,14 @@ app.use(function(req, res, next){
 // parse `application/json`
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser({uploadDir:'./uploads'}));
 
 var index = require('./routes/index');
 var shops = require('./routes/shops');
+var upload = require('./routes/upload.js');
 app.use('/', index);
 app.use('/api/shop', shops);
+app.use('/api/upload', upload);
 
 // 打印异常日志
 process.on('uncaughtException', error => {

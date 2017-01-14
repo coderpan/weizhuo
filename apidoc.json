@@ -3,5 +3,9 @@
   "version": "0.1.0",
   "description": "后台接口文档",
   "title": "微小铺后台接口文档",
-  "url" : "https://www.wxpuu.com"
+  "url" : "https://www.wxpuu.com",
+  "order": [
+    "register",
+    "update"
+  ]
 }

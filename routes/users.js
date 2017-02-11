@@ -74,6 +74,7 @@ router.post('/query', function(req, res, next) {
  * @apiError (错误码) 100 登录态校验失败
  * @apiError (错误码) 101 未知错误
  * @apiError (错误码) 1205 下单失败
+ * @apiError (错误码) 1206 查询商品信息失败
  */
 router.post('/order', function(req, res, next) {
 	userdao.order(req, res, next);

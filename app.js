@@ -50,11 +50,13 @@ var index = require('./routes/index');
 var shops = require('./routes/shops');
 var users = require('./routes/users');
 var upload = require('./routes/upload.js');
+var mp = require('./routes/mp');
 
 app.use('/', index);
 app.use('/api/shop', shops);
 app.use('/api/user', users);
 app.use('/api/upload', upload.dataInput);
+app.use('/api/mp', mp);
 
 // 打印异常日志
 process.on('uncaughtException', error => {

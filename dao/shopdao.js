@@ -317,7 +317,7 @@ module.exports = {
                 if (result) {
                     rsp = {
                         code: 0,
-                        classlist: result
+                        prodlist: result
                     };
                 }
                 else {

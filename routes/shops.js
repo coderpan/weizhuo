@@ -137,6 +137,7 @@ router.post('/query', function(req, res, next) {
  * @apiParam (入参) {String} desc 商品描述 
  * @apiParam (入参) {String} price 商品价格，单位分 
  * @apiParam (入参) {String} image 商品图片地址
+ * @apiParam (入参) {String} status  商品状态，0-上架，1-下架
  *
  * @apiSuccess (出参) {String} code 接口返回码
  * @apiSuccess (出参) {String} prodid 商品唯一标识

@@ -256,11 +256,12 @@ router.post('/classquery', function(req, res, next) {
  * @apiParam (入参) {String} openid 商户在微小铺公众号下的openid
  * @apiParam (入参) {String} token 商户登录态
  * @apiParam (入参) {String} shopid 商户ID
- * @apiParam (入参) {int} classid 分类ID
+ * @apiParam (入参) {int} classid 分类ID,不传或者传0，返回所有分类的商品列表，按分类ID排序
  *
  * @apiSuccess (出参) {String} code 接口返回码
  * @apiSuccess (出参) {Object[]} prodlist 商品列表
  * @apiSuccess (出参) {String} prodlist.prodid 商品ID
+ * @apiSuccess (出参) {String} prodlist.classid 分类ID
  * @apiSuccess (出参) {String} prodlist.name 商品名称
  * @apiSuccess (出参) {String} prodlist.desc 商品描述
  * @apiSuccess (出参) {int} prodlist.price 商品价格，单位分

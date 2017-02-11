@@ -48,10 +48,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 var index = require('./routes/index');
 var shops = require('./routes/shops');
+var users = require('./routes/users');
 var upload = require('./routes/upload.js');
 
 app.use('/', index);
 app.use('/api/shop', shops);
+app.use('/api/user', users);
 app.use('/api/upload', upload.dataInput);
 
 // 打印异常日志

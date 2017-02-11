@@ -122,28 +122,38 @@ module.exports = {
             var rsp;
 			connection.query(sql.shop_queryid, [req.body.openid], function(err, result) {
                 if (result) {
-                    connection.query(sql.shop_query, [result[0].shopid], function(err, result) {
-                        if (result) {
-                            rsp = {
-                                code: 0,
-                                shopid: result[0].shopid,
-                                name: result[0].name,
-                                mobile: result[0].mobile,
-                                logo: result[0].logo,
-                                status: result[0].status,
-                                createtime: result[0].createtime
-                            };    
-                        }
-                        else {
-                            console.error("select error, ret:" + err.message);
-                            rsp = {
-                                code: 1010,
-                                msg:'查询店铺信息失败'
-                            };
-                        }
+                    if (result.length && result[0].shopid != "") {
+                        connection.query(sql.shop_query, [result[0].shopid], function(err, result) {
+                            if (result) {
+                                rsp = {
+                                    code: 0,
+                                    shopid: result[0].shopid,
+                                    name: result[0].name,
+                                    mobile: result[0].mobile,
+                                    logo: result[0].logo,
+                                    status: result[0].status,
+                                    createtime: result[0].createtime
+                                };    
+                            }
+                            else {
+                                console.error("select error, ret:" + err.message);
+                                rsp = {
+                                    code: 1010,
+                                    msg:'查询店铺信息失败'
+                                };
+                            }
+                            res.json(rsp);
+                            connection.release();
+                        });
+                    }
+                    else {
+                        rsp = {
+                            code: 0,
+                            shopid: ""
+                        };    
                         res.json(rsp);
                         connection.release();
-                    });
+                    }
                 }
                 else {
                     console.error("select error, ret:" + err.message);
@@ -313,7 +323,8 @@ module.exports = {
             }
 
             var rsp;
-			connection.query(sql.shop_prodlist, [req.body.shopid, req.body.classid], function(err, result) {
+            var sqlstr = req.body.classid ? sql.shop_prodlist : sql.shop_prodlist_all;
+			connection.query(sqlstr, [req.body.shopid, req.body.classid], function(err, result) {
                 if (result) {
                     rsp = {
                         code: 0,

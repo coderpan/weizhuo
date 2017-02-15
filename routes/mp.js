@@ -17,6 +17,9 @@ var iconv = require("iconv-lite");
 router.get('/key', function(req, res1, next) {
 
     var path = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx6b34074c3a5ea64d&secret=8589a5d4e774904b077bf5f3bff6dfd9&code=' + req.query.code + '&grant_type=authorization_code';
+    var redirectURI = req.query.state;
+    console.log('change 1' + req.query.state);
+    console.log(redirectURI);
     console.log(path);
 		https.get(path, function(res) {
 		    console.log("onResponse");
@@ -30,7 +33,16 @@ router.get('/key', function(req, res1, next) {
 	          var sss = Buffer.concat(reqData, size);
 	          var result = iconv.decode(sss, "utf8");
 	          console.log(result);
-	          return res1.json(result);
+	          var json = JSON.parse(result);
+	          console.log(json)
+	          //return res1.json(result);
+	          //return res1.redirect(redirectURI);
+	          if (redirectURI) {
+		          res1.writeHead(302, {'Location': redirectURI + '?openid=' + json.openid + '?access_token=' + json.access_token});
+							res1.end();
+						} else {
+							return res1.json(result);
+						}
 	      });
     });
 });

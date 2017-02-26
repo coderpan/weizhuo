@@ -37,6 +37,7 @@ var shopdao = require('../dao/shopdao.js');
  * @apiError (错误码) 1001 生成店铺失败
  */
 router.post('/register', function(req, res, next) {
+    console.log(req.body);
 	shopdao.shopregister(req, res, next);
 });
 
@@ -75,6 +76,7 @@ router.post('/register', function(req, res, next) {
  * @apiError (错误码) 1020 更新店铺信息失败
  */
 router.post('/update', function(req, res, next) {
+    console.log(req.body);
 	shopdao.shopupdate(req, res, next);
 });
 
@@ -119,6 +121,7 @@ router.post('/update', function(req, res, next) {
  * @apiError (错误码) 1010 查询店铺信息失败
  */
 router.post('/query', function(req, res, next) {
+    console.log(req.body);
 	shopdao.shopquery(req, res, next);
 });
 
@@ -161,6 +164,7 @@ router.post('/query', function(req, res, next) {
  * @apiError (错误码) 1030  添加或更新商品失败
  */
 router.post('/dealprod', function(req, res, next) {
+    console.log(req.body);
 	shopdao.dealprod(req, res, next);
 })
 
@@ -198,6 +202,7 @@ router.post('/dealprod', function(req, res, next) {
  * @apiError (错误码) 1040  添加或更新分类失败
  */
 router.post('/dealclass', function(req, res, next) {
+    console.log(req.body);
 	shopdao.dealclass(req, res, next);
 });
 
@@ -244,6 +249,7 @@ router.post('/dealclass', function(req, res, next) {
  * @apiError (错误码) 1045  查询分类列表失败
  */
 router.post('/classquery', function(req, res, next) {
+    console.log(req.body);
 	shopdao.classquery(req, res, next);
 });
 
@@ -301,6 +307,7 @@ router.post('/classquery', function(req, res, next) {
  * @apiError (错误码) 1035  查询商品列表失败
  */
 router.post('/prodlist', function(req, res, next) {
+    console.log(req.body);
 	shopdao.prodlist(req, res, next);
 });
 

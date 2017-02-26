@@ -14,7 +14,8 @@ var sql = {
     shop_prod_query: 'select classid, name, descr, price from t_product where shopid=? and prodid=?',
 
     // user
-    user_query: 'select status, shopid from t_user where userid=?',
+    user_query: 'select status, shopid, shoplist from t_user where userid=?',
     user_order: 'insert into t_order(orderno, userid, shopid, price, detail, createtime) values(?,?,?,?,?,?)',
+    user_attent: 'update t_user set shoplist=concat(shoplist, \'|\', ?) where userid=? limit 1',
 };
 module.exports = sql;

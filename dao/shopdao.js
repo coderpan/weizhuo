@@ -342,5 +342,45 @@ module.exports = {
                 connection.release();
             });
         });
+    },
+
+	orderquery(req, res, next) {
+        if (!req.body.openid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+			connection.query(sql.shop_order_query, [req.body.shopid, req.body.pageno?(req.body.pageno-1):0, req.body.pagesize?req.body.pagesize:10], function(err, result) {
+                if (result) {
+                    rsp = {
+                        code: 0,
+                        orderlist: result
+                    };
+                }
+                else {
+                    console.error("select error, ret:" + err.message);
+                    rsp = {
+                        code: 1035,
+                        msg:'查询客户订单失败'
+                    };
+                }
+                res.json(rsp);
+                connection.release();
+            });
+        });
     }
 };

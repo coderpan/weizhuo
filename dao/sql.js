@@ -12,9 +12,13 @@ var sql = {
     shop_prodlist: 'select prodid, classid, name, descr, price, image from t_product where shopid=? and classid=? and status=0',
     shop_prodlist_all: 'select prodid, classid, name, descr, price, image from t_product where shopid=? and status=0 order by classid',
     shop_prod_query: 'select classid, name, descr, price from t_product where shopid=? and prodid=?',
+    shop_order_query: 'select orderno,price,userid,detail from t_order where shopid=? order by createtime desc limit ?,?',
 
     // user
-    user_query: 'select status, shopid from t_user where userid=?',
+    user_query: 'select status, shopid, shoplist from t_user where userid=?',
     user_order: 'insert into t_order(orderno, userid, shopid, price, detail, createtime) values(?,?,?,?,?,?)',
+    user_attent: 'update t_user set shoplist=concat(shoplist, \'|\', ?) where userid=? limit 1',
+    user_order_query_orderno: 'select orderno,shopid,price,detail from t_order where orderno=?',
+    user_order_query_userid: 'select orderno,shopid,price,detail from t_order where userid=? order by createtime desc limit ?,?',
 };
 module.exports = sql;

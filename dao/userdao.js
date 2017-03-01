@@ -57,15 +57,18 @@ module.exports = {
                     if (result.length) {
                         status = result[0].status;
                         shopid = result[0].shopid;
+                        shoplist = result[0].shoplist;
                     }
                     else {
                         status = 0;
                         shopid = "";
+                        shoplist = "";
                     }
                     rsp = {
                         code: 0,
                         status: status,
-                        shopid: shopid
+                        shopid: shopid,
+                        shoplist: shoplist
                     };    
                 }
                 else {
@@ -155,4 +158,108 @@ module.exports = {
             }
         });
 	},
+
+	attent(req, res, next) {
+        if (!req.body.openid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+			connection.query(sql.user_attent, [req.body.shopid, req.body.openid], function(err, result) {
+                if (result) {
+                    rsp = {
+                        code: 0,
+                        msg:'关注店铺成功'
+                    };
+                }
+                else {
+                    console.error("update error, ret:" + err.message);
+                    rsp = {
+                        code: 1210,
+                        msg:'关注店铺失败'
+                    };
+                }
+                res.json(rsp);
+                connection.release();
+			});
+		});
+	},
+
+	orderquery(req, res, next) {
+        if (!req.body.openid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+            var sqlstr;
+            if (req.body.orderno) {
+                sqlstr = sql.user_order_query_orderno;
+                connection.query(sqlstr, [req.body.orderno], function(err, result) {
+                    if (result) {
+                        rsp = {
+                            code: 0,
+                            orderlist: result
+                        };
+                    }
+                    else {
+                        console.error("select error, ret:" + err.message);
+                        rsp = {
+                            code: 1220,
+                            msg:'查询用户订单失败'
+                        };
+                    }
+                    res.json(rsp);
+                    connection.release();
+                });
+            }
+            else
+            {
+                sqlstr = sql.user_order_query_userid;
+                connection.query(sqlstr, [req.body.openid, req.body.pageno?(req.body.pageno-1):0, req.body.pagesize?req.body.pagesize:10], function(err, result) {
+                    if (result) {
+                        rsp = {
+                            code: 0,
+                            orderlist: result
+                        };
+                    }
+                    else {
+                        console.error("select error, ret:" + err.message);
+                        rsp = {
+                            code: 1220,
+                            msg:'查询用户订单失败'
+                        };
+                    }
+                    res.json(rsp);
+                    connection.release();
+                });
+            }
+        });
+    }
 };

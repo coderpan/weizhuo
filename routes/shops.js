@@ -169,7 +169,7 @@ router.post('/dealprod', function(req, res, next) {
 })
 
 /**
- * @api {post} /api/shop/dealclass 添加/更新分类
+ * @api {post} /api/shop/dealclass 添加/更新/删除分类
  * @apiName dealclass
  * @apiGroup  Shop
  * @apiVersion 0.1.0
@@ -178,7 +178,7 @@ router.post('/dealprod', function(req, res, next) {
  * @apiParam (入参) {String} token 商户登录态
  * @apiParam (入参) {String} shopid 商户ID
  * @apiParam (入参) {int} classid 分类ID,为空表示新增分类，反之修改分类
- * @apiParam (入参) {String} name 分类名称
+ * @apiParam (入参) {String} name 分类名称，为空或不传表示删除分类
  *
  * @apiSuccess (出参) {int} code 接口返回码
  * @apiSuccess (出参) {int} classid 分类ID
@@ -320,19 +320,22 @@ router.post('/prodlist', function(req, res, next) {
  * @apiParam (入参) {String} openid 商户在微小铺公众号下的openid
  * @apiParam (入参) {String} token 商户登录态
  * @apiParam (入参) {String} shopid 店铺ID
- * @apiParam (入参) {int} pageno 页码，从1开始
+ * @apiParam (入参) {int} pageno 页码，从1开始，传0或不传，返回订单总数
  * @apiParam (入参) {int} pagesize 每页显示订单数
  *
  * @apiSuccess (出参) {int} code 接口返回码
+ * @apiSuccess (出参) {int} count 订单总数
  * @apiSuccess (出参) {Object[]} orderlist 订单列表
  * @apiSuccess (出参) {String} orderlist.orderno 订单号
  * @apiSuccess (出参) {String} orderlist.totalprice 订单总金额,单位分
  * @apiSuccess (出参) {String} orderlist.userid 用户openid
  * @apiSuccess (出参) {String} orderlist.detail 订单详情
+ * @apiSuccess (出参) {String} orderlist.status 订单状态，0-未付款，1-已付款，2-已退款，3-商家已处理
  *
  * @apiSuccessExample 成功返回：
  *     {
  *       "code":0,
+ *       "count": 98,
  *       "orderlist": [
  *         {
  *           "orderno": "sdjfdhD2eHD45",
@@ -364,6 +367,41 @@ router.post('/prodlist', function(req, res, next) {
 router.post('/orderquery', function(req, res, next) {
     console.log(req.body);
 	shopdao.orderquery(req, res, next);
+});
+
+/**
+ * @api {post} /api/shop/orderdeal  处理订单
+ * @apiName orderdeal
+ * @apiGroup  Shop
+ * @apiVersion 0.1.0
+ *
+ * @apiParam (入参) {String} openid 用户的openid
+ * @apiParam (入参) {String} token 用户登录态
+ * @apiParam (入参) {String} shopid 店铺ID
+ * @apiParam (入参) {String} orderno 订单号
+ *
+ * @apiSuccess (出参) {String} code 接口返回码
+ *
+ * @apiSuccessExample 成功返回：
+ *     {
+         "code":0
+ *     }
+ *
+ * @apiErrorExample 失败返回
+ *     {
+ *       "code": 1045,
+ *       "msg": "处理订单失败"
+ *     }
+ *
+ * @apiError (错误码) 0 成功
+ * @apiError (错误码) 99 参数错误
+ * @apiError (错误码) 100 登录态校验失败
+ * @apiError (错误码) 101 未知错误
+ * @apiError (错误码) 1045 处理订单失败
+ */
+router.post('/orderdeal', function(req, res, next) {
+    console.log(req.body);
+	shopdao.orderdeal(req, res, next);
 });
 
 module.exports = router;

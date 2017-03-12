@@ -18,6 +18,7 @@ var sql = {
     shop_order_deal: 'update t_order set status=3 where orderno=? limit 1',
 
     // user
+	user_regist:'INSERT INTO t_user(userid, mobile, type, createtime) VALUES(?,?,0,?)',
     user_query: 'select status, shopid, shoplist from t_user where userid=?',
     user_order: 'insert into t_order(orderno, userid, shopid, price, detail, createtime) values(?,?,?,?,?,?)',
     user_attent: 'update t_user set shoplist=concat(shoplist, \'|\', ?) where userid=? limit 1',

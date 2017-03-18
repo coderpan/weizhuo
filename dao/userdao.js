@@ -33,6 +33,45 @@ Date.prototype.format = function(format) {
 //console.log(new Date(1395763200000).format("yyyy-MM-dd hh:mm:ss.S"));
 
 module.exports = {
+	regist(req, res, next) {
+        if (!req.body.openid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+			connection.query(sql.user_regist, [req.body.openid, '', new Date().getTime()/1000], function(err, result) {
+                if (result) {
+                    rsp = {
+                        code: 0,
+                        msg:'用户注册成功'
+                    };
+                }
+                else {
+                    console.error("insert error, ret:" + err.message);
+                    rsp = {
+                        code: 1230,
+                        msg:'用户注册失败'
+                    };
+                }
+                res.json(rsp);
+                connection.release();
+			});
+		});
+	},
+
 	query(req, res, next) {
         if (!req.body.openid) {
             result = {
@@ -178,23 +217,36 @@ module.exports = {
             }
 
             var rsp;
-			connection.query(sql.user_attent, [req.body.shopid, req.body.openid], function(err, result) {
-                if (result) {
-                    rsp = {
-                        code: 0,
-                        msg:'关注店铺成功'
-                    };
+			connection.query(sql.user_query, [req.body.openid], function(err, result) {
+                if (result&&result.length) {
+                    connection.query(sql.user_attent, [req.body.shopid, req.body.openid], function(err, result) {
+                        if (result) {
+                            rsp = {
+                                code: 0,
+                                msg:'关注店铺成功'
+                            };
+                        }
+                        else {
+                            console.error("update error, ret:" + err.message);
+                            rsp = {
+                                code: 1210,
+                                msg:'关注店铺失败'
+                            };
+                        }
+                        res.json(rsp);
+                        connection.release();
+                    });
                 }
-                else {
-                    console.error("update error, ret:" + err.message);
+                else
+                {
                     rsp = {
                         code: 1210,
-                        msg:'关注店铺失败'
+                        msg:'用户未注册'
                     };
+                    res.json(rsp);
+                    connection.release();
                 }
-                res.json(rsp);
-                connection.release();
-			});
+            });
 		});
 	},
 

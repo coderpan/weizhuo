@@ -161,20 +161,51 @@ router.post('/attent', function(req, res, next) {
  *
  * @apiErrorExample 失败返回
  *     {
- *       "code": 1210,
- *       "msg": "关注失败"
+ *       "code": 1220,
+ *       "msg": "查询用户订单失败"
  *     }
  *
  * @apiError (错误码) 0 成功
  * @apiError (错误码) 99 参数错误
  * @apiError (错误码) 100 登录态校验失败
  * @apiError (错误码) 101 未知错误
- * @apiError (错误码) 1205 下单失败
- * @apiError (错误码) 1206 查询商品信息失败
- * @apiError (错误码) 1210 用户关注店铺失败
+ * @apiError (错误码) 1220 查询用户信息失败
  */
 router.post('/orderquery', function(req, res, next) {
     console.log(req.body);
 	userdao.orderquery(req, res, next);
+});
+
+/**
+ * @api {post} /api/user/regist  用户注册
+ * @apiName regist
+ * @apiGroup  User
+ * @apiVersion 0.1.0
+ *
+ * @apiParam (入参) {String} openid 用户的openid
+ * @apiParam (入参) {String} token 用户登录态
+ *
+ * @apiSuccess (出参) {String} code 接口返回码
+ *
+ * @apiSuccessExample 成功返回：
+ *     {
+         "code":0
+ *     }
+ *
+ * @apiErrorExample 失败返回
+ *     {
+ *       "code": 1230,
+ *       "msg": "用户注册失败"
+ *     }
+ *
+ * @apiError (错误码) 0 成功
+ * @apiError (错误码) 99 参数错误
+ * @apiError (错误码) 100 登录态校验失败
+ * @apiError (错误码) 101 未知错误
+ * @apiError (错误码) 1230 用户注册失败
+ */
+router.post('/regist', function(req, res, next) {
+    console.log(req.body);
+	userdao.regist(req, res, next);
 });
 module.exports = router;

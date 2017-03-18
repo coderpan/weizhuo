@@ -133,6 +133,12 @@ router.post('/attent', function(req, res, next) {
  * @apiParam (入参) {int} pagesize 每页显示订单数
  *
  * @apiSuccess (出参) {String} code 接口返回码
+ * @apiSuccess (出参) {Object[]} orderlist 订单列表
+ * @apiSuccess (出参) {String} orderlist.orderno 订单号
+ * @apiSuccess (出参) {String} orderlist.totalprice 订单总金额,单位分
+ * @apiSuccess (出参) {String} orderlist.userid 用户openid
+ * @apiSuccess (出参) {String} orderlist.detail 订单详情
+ * @apiSuccess (出参) {String} orderlist.status 订单状态，0-未付款，1-已付款，2-已退款，3-商家已处理
  *
  * @apiSuccessExample 成功返回：
  *     {

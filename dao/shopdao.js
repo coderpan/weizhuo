@@ -238,7 +238,6 @@ module.exports = {
             }
 
             var rsp;
-            console.log(sql.shop_maxclassid);
 			connection.query(sql.shop_maxclassid, [req.body.shopid], function(err, result) {
                 var classid = result[0].classid;
                 connection.query(sql.shop_dealclass, [req.body.shopid, classid, req.body.name, new Date().getTime()/1000], 
@@ -364,23 +363,97 @@ module.exports = {
             }
 
             var rsp;
-			connection.query(sql.shop_order_query, [req.body.shopid, req.body.pageno?(req.body.pageno-1):0, req.body.pagesize?req.body.pagesize:10], function(err, result) {
-                if (result) {
-                    rsp = {
-                        code: 0,
-                        orderlist: result
-                    };
+            if (req.body.pageno) {
+                connection.query(sql.shop_order_query, [req.body.shopid, req.body.pageno?(req.body.pageno-1):0, req.body.pagesize?req.body.pagesize:10], function(err, result) {
+                    if (result) {
+                        rsp = {
+                            code: 0,
+                            orderlist: result
+                        };
+                    }
+                    else {
+                        console.error("select error, ret:" + err.message);
+                        rsp = {
+                            code: 1040,
+                            msg:'查询客户订单失败'
+                        };
+                    }
+                    res.json(rsp);
+                    connection.release();
+                });
+            }
+            else {
+                connection.query(sql.shop_order_count, [req.body.shopid], function(err, result) {
+                    if (result) {
+                        rsp = {
+                            code: 0,
+                            count: result[0].cnt
+                        };
+                    }
+                    else {
+                        console.error("select error, ret:" + err.message);
+                        rsp = {
+                            code: 1040,
+                            msg:'查询客户订单失败'
+                        };
+                    }
+                    res.json(rsp);
+                    connection.release();
+                });
+            }
+        });
+    },
+
+	orderdeal(req, res, next) {
+        if (!req.body.openid || !req.body.shopid || !req.body.orderno) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+            // 店主身份认证
+            connection.query(sql.shop_seller_verify, [req.body.openid, req.body.shopid], function(err, result) {
+                if (result && result.length) {
+                    connection.query(sql.shop_order_deal, [req.body.orderno], function(err, result) {
+                        if (result) {
+                            rsp = {
+                                code: 0
+                            };
+                        }
+                        else {
+                            console.error("select error, ret:" + err.message);
+                            rsp = {
+                                code: 1045,
+                                msg:'处理订单失败'
+                            };
+                        }
+                        res.json(rsp);
+                        connection.release();
+                    });
                 }
                 else {
-                    console.error("select error, ret:" + err.message);
                     rsp = {
-                        code: 1035,
-                        msg:'查询客户订单失败'
+                        code: 1045,
+                        msg:'店主身份认证失败'
                     };
+                    res.json(rsp);
+                    connection.release();
                 }
-                res.json(rsp);
-                connection.release();
             });
+
         });
     }
 };

@@ -11,12 +11,12 @@ var iconv = require("iconv-lite");
  *
  * @apiParam (入参) {String} code 从微信那边获取得到的code
  *
- * @apiSuccess (出参) {String} obj 微信返回一系列信息(Json结构)
+ * @apiSuccess (出参) {String} data 微信返回一系列信息(Json结构)
  *
  */
 router.get('/key', function(req, res1, next) {
 
-    var path = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx6b34074c3a5ea64d&secret=8589a5d4e774904b077bf5f3bff6dfd9&code=' + req.query.code + '&grant_type=authorization_code';
+    var path = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx43fff1902c387d5d&secret=d3bc9071271f0ff61facec62bad976c8&code=' + req.query.code + '&grant_type=authorization_code';
     var redirectURI = 'http://www.ingcloud.net/business/seller/index.html';//req.query.state;
     console.log('change 1' + req.query.state);
     console.log(redirectURI);
@@ -48,7 +48,6 @@ router.get('/key', function(req, res1, next) {
     });
 });
 
-
 /**
  * @api {post} /api/mp/getuserinfo 通过token和openID获取用户信息
  * @apiName getuserinfo
@@ -58,12 +57,12 @@ router.get('/key', function(req, res1, next) {
  * @apiParam (入参) {String} access_token 登录token
  * @apiParam (入参) {String} openid 用户的openID
  *
- * @apiSuccess (出参) {String} 微信返回一系列用户信息(Json结构)
+ * @apiSuccess (出参) {String} data 微信返回一系列用户信息(Json结构)
  *
  */
 router.get('/getuserinfo', function(req, res1, next) {
 
-    var path = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token='+req.query.access_token+'&openid='+req.query.openid+'&lang=zh_CN';
+    var path = 'https://api.weixin.qq.com/sns/userinfo?access_token='+req.query.access_token+'&openid='+req.query.openid+'&lang=zh_CN';
     console.log(path);
 		https.get(path, function(res) {
 		    console.log("onResponse");
@@ -99,7 +98,7 @@ router.get('/getuserinfo', function(req, res1, next) {
  *
  * @apiParam (入参) {String} code 小程序中获取到的code
  *
- * @apiSuccess (出参) {String} 微信返回一系列用户信息(Json结构)
+ * @apiSuccess (出参) {String} data 微信返回一系列用户信息(Json结构)
  *
  */
 router.get('/keyxcx', function(req, res1, next) {

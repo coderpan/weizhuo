@@ -103,7 +103,7 @@ router.get('/getuserinfo', function(req, res1, next) {
  */
 router.get('/keyxcx', function(req, res1, next) {
 
-    var path = 'https://api.weixin.qq.com/sns/jscode2session?appid=wx35fbcee3869a4147&secret=4975bd19e21b2c8eca6812fe93f9ab54&js_code='+req.query.code+'&grant_type=authorization_code';
+    var path = 'https://api.weixin.qq.com/sns/jscode2session?appid=wx3798b69011ebbf2c&secret=0cc66abe1db89010037cc272325b9189&js_code='+req.query.code+'&grant_type=authorization_code';
     console.log(path);
 		https.get(path, function(res) {
 		    console.log("onResponse");

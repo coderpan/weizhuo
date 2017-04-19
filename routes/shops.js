@@ -53,6 +53,8 @@ router.post('/register', function(req, res, next) {
  * @apiParam (入参) {String} name 商户店铺名称
  * @apiParam (入参) {String} mobile 商户联系方式
  * @apiParam (入参) {String} logo 商户店铺logo地址
+ * @apiParam (入参) {String} desc 商户店铺描述
+ * @apiParam (入参) {String} addr 商户店铺地址
  *
  * @apiSuccess (出参) {int} code 接口返回码
  * @apiSuccess (出参) {String} shopid 商户店铺唯一标识
@@ -94,6 +96,8 @@ router.post('/update', function(req, res, next) {
  * @apiSuccess (出参) {String} name 商户店铺名称 
  * @apiSuccess (出参) {String} mobile 商户店铺联系号码
  * @apiSuccess (出参) {String} logo 商户店铺logo地址
+ * @apiSuccess (出参) {String} desc 商户店铺描述
+ * @apiSuccess (出参) {String} addr 商户店铺地址
  * @apiSuccess (出参) {String} status 商户店铺状态，0-正常，1-异常
  * @apiSuccess (出参) {String} createtime 商户店铺创建时间
  *
@@ -104,6 +108,8 @@ router.post('/update', function(req, res, next) {
  *       "name": "微小铺",
  *       "mobile": "13888888888",
  *       "logo": "http://www.wxpuu.com/mylogo.jpg",
+ *       "desc": "这是一家好店铺",
+ *       "addr": "深圳市南山区xx路",
  *       "status": 0,
  *       "createtime": "1484407390"
  *     }
@@ -178,7 +184,7 @@ router.post('/dealprod', function(req, res, next) {
  * @apiParam (入参) {String} token 商户登录态
  * @apiParam (入参) {String} shopid 商户ID
  * @apiParam (入参) {int} classid 分类ID,为空表示新增分类，反之修改分类
- * @apiParam (入参) {String} name 分类名称，为空或不传表示删除分类
+ * @apiParam (入参) {String} name 分类名称，为空表示删除分类
  *
  * @apiSuccess (出参) {int} code 接口返回码
  * @apiSuccess (出参) {int} classid 分类ID
@@ -259,10 +265,10 @@ router.post('/classquery', function(req, res, next) {
  * @apiGroup  Shop
  * @apiVersion 0.1.0
  *
- * @apiParam (入参) {String} openid 商户在微小铺公众号下的openid
- * @apiParam (入参) {String} token 商户登录态
+ * @apiParam (入参) {String} openid 商户在微小铺公众号下的openid，如果是用户进入店铺，这里填用户的openid
+ * @apiParam (入参) {String} token 商户登录态，如果是用户进入店铺，这里填用户的token
  * @apiParam (入参) {String} shopid 商户ID
- * @apiParam (入参) {int} classid 分类ID,不传或者传0，返回所有分类的商品列表，按分类ID排序
+ * @apiParam (入参) {int} classid 分类ID，不传或者传0，返回所有分类的商品列表，按分类ID排序
  *
  * @apiSuccess (出参) {int} code 接口返回码
  * @apiSuccess (出参) {Object[]} prodlist 商品列表
@@ -320,11 +326,14 @@ router.post('/prodlist', function(req, res, next) {
  * @apiParam (入参) {String} openid 商户在微小铺公众号下的openid
  * @apiParam (入参) {String} token 商户登录态
  * @apiParam (入参) {String} shopid 店铺ID
+ * @apiParam (入参) {String} date 日期，如20170415，不传默认当天
  * @apiParam (入参) {int} pageno 页码，从1开始，传0或不传，返回订单总数
  * @apiParam (入参) {int} pagesize 每页显示订单数
  *
  * @apiSuccess (出参) {int} code 接口返回码
  * @apiSuccess (出参) {int} count 订单总数
+ * @apiSuccess (出参) {int} dealcount 已处理订单总数,不包括已退款的订单
+ * @apiSuccess (出参) {int} nodealcount 未处理订单总数，不包括未支付的订单
  * @apiSuccess (出参) {Object[]} orderlist 订单列表
  * @apiSuccess (出参) {String} orderlist.orderno 订单号
  * @apiSuccess (出参) {String} orderlist.totalprice 订单总金额,单位分

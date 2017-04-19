@@ -3,6 +3,25 @@ var db_conf = require('../conf/db');
 var sql = require('./sql');
 var crypto = require('crypto');
 
+Date.prototype.format = function(fmt){
+    var o = {
+        "M+" : this.getMonth()+1,                 //月份
+        "d+" : this.getDate(),                    //日
+        "h+" : this.getHours(),                   //小时
+        "m+" : this.getMinutes(),                 //分
+        "s+" : this.getSeconds(),                 //秒
+        "q+" : Math.floor((this.getMonth()+3)/3), //季度
+        "S"  : this.getMilliseconds()             //毫秒
+    };
+
+    if(/(y+)/.test(fmt))
+        fmt=fmt.replace(RegExp.$1, (this.getFullYear().toString()).substr(4 - RegExp.$1.length));
+    for(var k in o)
+        if(new RegExp("("+ k +")").test(fmt))
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+    return fmt;
+};
+
 var pool = mysql.createPool(db_conf.mysql);
 
 module.exports = {
@@ -81,7 +100,9 @@ module.exports = {
             }
 
             var rsp;
-			connection.query(sql.shop_update, [req.body.shopid, req.body.name, req.body.mobile, req.body.logo], function(err, result) {
+            if (!req.body.desc) req.body.desc = "";
+            if (!req.body.addr) req.body.addr = "";
+			connection.query(sql.shop_update, [req.body.shopid, req.body.name, req.body.mobile, req.body.logo, req.body.desc, req.body.addr], function(err, result) {
                 if (result) {
                     rsp = {
                         code: 0,
@@ -131,6 +152,8 @@ module.exports = {
                                     name: result[0].name,
                                     mobile: result[0].mobile,
                                     logo: result[0].logo,
+                                    desc: result[0].des,
+                                    addr: result[0].addr,
                                     status: result[0].status,
                                     createtime: result[0].createtime
                                 };    
@@ -238,14 +261,37 @@ module.exports = {
             }
 
             var rsp;
-			connection.query(sql.shop_maxclassid, [req.body.shopid], function(err, result) {
-                var classid = result[0].classid;
-                connection.query(sql.shop_dealclass, [req.body.shopid, classid, req.body.name, new Date().getTime()/1000], 
+            if (!req.body.classid) {
+                connection.query(sql.shop_maxclassid, [req.body.shopid], function(err, result) {
+                    var classid = result[0].classid;
+                    connection.query(sql.shop_dealclass, [req.body.shopid, classid, req.body.name, new Date().getTime()/1000], 
+                     function(err, result) {
+                        if (result) {
+                            rsp = {
+                                code: 0,
+                                classid: classid
+                            };
+                        }
+                        else {
+                            console.error("replace error, ret:" + err.message);
+                            rsp = {
+                                code: 1040,
+                                msg:'添加/更新分类失败'
+                            };
+                        }
+                        res.json(rsp);
+                        connection.release();
+                    });
+                });
+            }
+            else
+            {
+                connection.query(sql.shop_dealclass, [req.body.shopid, req.body.classid, req.body.name, new Date().getTime()/1000], 
                  function(err, result) {
                     if (result) {
                         rsp = {
                             code: 0,
-                            classid: classid
+                            classid: req.body.classid
                         };
                     }
                     else {
@@ -257,8 +303,8 @@ module.exports = {
                     }
                     res.json(rsp);
                     connection.release();
-                    });
                 });
+            }
         });
     },
 
@@ -351,6 +397,16 @@ module.exports = {
             }; 
             return res.json(result);
         }
+        if (!req.body.date) {
+/*
+            var dt = new Date();
+            var year = dt.getFullYear();
+            var month = dt.getMonth()+1;
+            var day = dt.getDate();
+            req.body.date = "" + year + month + day;
+*/
+            req.body.date = new Date().format("yyyyMMdd");
+        }
 
 		pool.getConnection(function(err, connection) {
             if(err) {
@@ -363,44 +419,74 @@ module.exports = {
             }
 
             var rsp;
-            if (req.body.pageno) {
-                connection.query(sql.shop_order_query, [req.body.shopid, req.body.pageno?(req.body.pageno-1):0, req.body.pagesize?req.body.pagesize:10], function(err, result) {
-                    if (result) {
-                        rsp = {
-                            code: 0,
-                            orderlist: result
-                        };
-                    }
-                    else {
-                        console.error("select error, ret:" + err.message);
-                        rsp = {
-                            code: 1040,
-                            msg:'查询客户订单失败'
-                        };
-                    }
+            // 店主身份认证
+            connection.query(sql.shop_seller_verify, [req.body.openid, req.body.shopid], function(err, result) {
+                if (result && result.length) {
+                        connection.query(sql.shop_order_count, [req.body.shopid, req.body.date], function(err, result) {
+                            if (result) {
+                                var dealcount = 0, nodealcount = 0, totalcount = 0;
+                                for (var j = 0; j < result.length; ++j) {
+                                    if (result[j].st == 3) 
+                                        dealcount = result[0].cnt;
+                                    else if(result[j].st == 1) 
+                                        nodealcount = result[0].cnt;
+                                    totalcount += result[0].cnt;
+                                }
+                                if (result.length && req.body.pageno) {
+                                    connection.query(sql.shop_order_query, [req.body.shopid, req.body.date, req.body.pageno?(req.body.pageno-1):0, req.body.pagesize?req.body.pagesize:10], function(err, result) {
+                                        if (result) {
+                                            for (var k = 0; k < result.length; ++k) {
+                                                result[k].detail = JSON.parse(result[k].detail);
+                                            }
+                                            rsp = {
+                                                code: 0,
+                                                count: totalcount,
+                                                dealcount: dealcount,
+                                                nodealcount: nodealcount,
+                                                orderlist: result
+                                            };
+                                        }
+                                        else {
+                                            console.error("select error, ret:" + err.message);
+                                            rsp = {
+                                                code: 1040,
+                                                msg:'查询客户订单失败'
+                                            };
+                                        }
+                                        res.json(rsp);
+                                        connection.release();
+                                    });
+                                }
+                                else {
+                                    rsp = {
+                                        code: 0,
+                                        count: totalcount,
+                                        dealcount: dealcount,
+                                        nodealcount: nodealcount,
+                                    };
+                                    res.json(rsp);
+                                    connection.release();
+                                }
+                            }
+                            else {
+                                rsp = {
+                                    code: 1040,
+                                    msg:'查询客户订单失败'
+                                };
+                                res.json(rsp);
+                                connection.release();
+                            }
+                        });
+                }
+                else {
+                    rsp = {
+                        code: 1045,
+                        msg:'店主身份认证失败'
+                    };
                     res.json(rsp);
                     connection.release();
-                });
-            }
-            else {
-                connection.query(sql.shop_order_count, [req.body.shopid], function(err, result) {
-                    if (result) {
-                        rsp = {
-                            code: 0,
-                            count: result[0].cnt
-                        };
-                    }
-                    else {
-                        console.error("select error, ret:" + err.message);
-                        rsp = {
-                            code: 1040,
-                            msg:'查询客户订单失败'
-                        };
-                    }
-                    res.json(rsp);
-                    connection.release();
-                });
-            }
+                }
+            });
         });
     },
 

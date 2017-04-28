@@ -56,16 +56,23 @@ module.exports.getXCXQRCode = function (access_token, data, cb) {
   
     var request = https.request(post_option, function (serverFeedback) {
         if (serverFeedback.statusCode == 200) {
-            var body = "";
+            var buffer;
             //console.log(serverFeedback);
             //console.log("response type ="+serverFeedback.headers['content-type']);
-            serverFeedback.on('data', function (data) { body += data; })
+            serverFeedback.on('data', function (data) { 
+            									if (buffer) {
+            										buffer = Buffer.concat([buffer, data]);
+            									} else {
+            										buffer = data;
+            									}
+            									console.log(buffer);
+            								})
             							.on('response', function(response) {
             								console.log(response);
             								console.log("response type ="+response.headers['content-type']);
             							})
                           .on('end', function () {
-                          		cb(200, body);
+	                          	cb(200, buffer.toString('base64'));
                           	});
         }
         else {

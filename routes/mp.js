@@ -223,7 +223,7 @@ router.get('/getXCXAccessToken', function(req, res1, next) {
  *
  * @apiParam (入参) {String} access_token 获取到的小程序token
  *
- * @apiParam (入参) {String} shopid 跳转的shopid
+ * @apiParam (入参) {String} shopid 跳转商铺id
  *
  * @apiSuccess (出参) {String} pic  二维码图片
  *

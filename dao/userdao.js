@@ -91,24 +91,49 @@ module.exports = {
             }
 
             var rsp;
+            var shoplist = [];
 			connection.query(sql.user_query, [req.body.openid], function(err, result) {
                 if (result) {
                     if (result.length) {
                         status = result[0].status;
                         shopid = result[0].shopid;
-                        shoplist = result[0].shoplist;
+                        var shopids  = result[0].shoplist;
+                        if (!shopids.length) {
+                            shopids = "|7086b7f20b80e980fd519770c98629125fe3641b|a679db45b2034ee5b35a71bddd02df772253c468";
+                        }
+                        if (shopids.length) {
+                            shopids = "('" + shopids.substring(1).replace(/\|/g,"','") + "')";
+                            sqlstr = sql.shop_query_all+shopids;
+                            console.log(sqlstr);
+                            connection.query(sqlstr, function(err, result) {
+                                if (result) {
+                                    rsp = {
+                                        code: 0,
+                                        size: result.length,
+                                        shoplist: result
+                                    };
+                                }
+                                else {
+                                    console.error("select error, ret:" + err.message);
+                                    rsp = {
+                                        code: 1201,
+                                        msg:'查询用户信息失败'
+                                    };
+                                }
+                                res.json(rsp);
+                                connection.release();
+                            });
+                        }
                     }
                     else {
-                        status = 0;
-                        shopid = "";
-                        shoplist = "";
+                        rsp = {
+                            code: 0,
+                            size: 0,
+                            shoplist: shoplist
+                        };    
+                        res.json(rsp);
+                        connection.release();
                     }
-                    rsp = {
-                        code: 0,
-                        status: status,
-                        shopid: shopid,
-                        shoplist: shoplist
-                    };    
                 }
                 else {
                     console.error("query error, ret:" + err.message);
@@ -116,9 +141,9 @@ module.exports = {
                         code: 1201,
                         msg:'查询用户信息失败'
                     };
+                    res.json(rsp);
+                    connection.release();
                 }
-                res.json(rsp);
-                connection.release();
 			});
 		});
 	},
@@ -219,23 +244,33 @@ module.exports = {
             var rsp;
 			connection.query(sql.user_query, [req.body.openid], function(err, result) {
                 if (result&&result.length) {
-                    connection.query(sql.user_attent, [req.body.shopid, req.body.openid], function(err, result) {
-                        if (result) {
-                            rsp = {
-                                code: 0,
-                                msg:'关注店铺成功'
-                            };
-                        }
-                        else {
-                            console.error("update error, ret:" + err.message);
-                            rsp = {
-                                code: 1210,
-                                msg:'关注店铺失败'
-                            };
-                        }
+                    if (result[0].shoplist.search(req.body.shopid) == -1) {
+                        connection.query(sql.user_attent, [req.body.shopid, req.body.openid], function(err, result) {
+                            if (result) {
+                                rsp = {
+                                    code: 0,
+                                    msg:'关注店铺成功'
+                                };
+                            }
+                            else {
+                                console.error("update error, ret:" + err.message);
+                                rsp = {
+                                    code: 1210,
+                                    msg:'关注店铺失败'
+                                };
+                            }
+                            res.json(rsp);
+                            connection.release();
+                        });
+                    }
+                    else {
+                        rsp = {
+                            code: 0,
+                            msg:'关注店铺成功'
+                        };
                         res.json(rsp);
                         connection.release();
-                    });
+                    }
                 }
                 else
                 {
@@ -275,8 +310,12 @@ module.exports = {
                 sqlstr = sql.user_order_query_orderno;
                 connection.query(sqlstr, [req.body.orderno], function(err, result) {
                     if (result) {
+                        for (var k = 0; k < result.length; ++k) {
+                            result[k].detail = JSON.parse(result[k].detail);
+                        }
                         rsp = {
                             code: 0,
+                            count: result.length,
                             orderlist: result
                         };
                     }
@@ -296,8 +335,12 @@ module.exports = {
                 sqlstr = sql.user_order_query_userid;
                 connection.query(sqlstr, [req.body.openid, req.body.pageno?(req.body.pageno-1):0, req.body.pagesize?req.body.pagesize:10], function(err, result) {
                     if (result) {
+                        for (var k = 0; k < result.length; ++k) {
+                            result[k].detail = JSON.parse(result[k].detail);
+                        }
                         rsp = {
                             code: 0,
+                            count: result.length,
                             orderlist: result
                         };
                     }

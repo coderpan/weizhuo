@@ -13,6 +13,7 @@ var userdao = require('../dao/userdao.js');
  * @apiParam (入参) {String} token 用户登录态
  *
  * @apiSuccess (出参) {String} code 接口返回码
+ * @apiSuccess (出参) {int} size 关注店铺的条数
  * @apiSuccess (出参) {String} status 用户状态，0-正常，1-异常
  * @apiSuccess (出参) {String} shopid 商户店铺唯一标识，如果为空，表示普通用户
  * @apiSuccess (出参) {String} shoplist 用户关注的店铺列表

@@ -3,6 +3,7 @@ var db_conf = require('../conf/db');
 var sql = require('./sql');
 var crypto = require('crypto');
 var pool = mysql.createPool(db_conf.mysql);
+var mpUtil = require("../routes/mpUtil");
 
 Date.prototype.format = function(format) {
  
@@ -109,6 +110,7 @@ module.exports = {
                                 if (result) {
                                     rsp = {
                                         code: 0,
+                                        status: status,
                                         size: result.length,
                                         shoplist: result
                                     };
@@ -181,12 +183,11 @@ module.exports = {
                     connection.query(sql.shop_prod_query, [req.body.shopid, prodPriceArray[i].prodid], function(err, result) {
                         if (result && result.length) {
                             index++;
-                            prodPriceArray[i].price = result[0].price * prodPriceArray[i].count;
-                            totalPrice += prodPriceArray[i].price;
+                            prodPriceArray[i].price = result[0].price;//result[0].price * prodPriceArray[i].count;
+                            totalPrice += (result[0].price * prodPriceArray[i].count);//prodPriceArray[i].price;
 
                             if (index == prodPriceArray.length) {
                                 var detail = JSON.stringify(prodPriceArray);
-                                console.log("shopid"+req.body.shopid);
                                 connection.query(sql.user_order, [orderno, req.body.openid, 
                                                                     req.body.shopid, totalPrice, detail,new Date().getTime()/1000], 
                                 function(err, orderres) {
@@ -196,15 +197,61 @@ module.exports = {
                                             orderno: orderno,
                                             totalprice: totalPrice
                                         };
+
+                                        //查询店主openid，下发模板消息
+                                        connection.query(sql.shop_queryuserid, req.body.shopid, function(err2, shopres) {
+                                            if (shopres) {
+                                                console.log(shopres);
+                                                var data = {
+                                                    "touser": shopres[0].userid,
+                                                    "template_id": "fGHCtqEvZ5nFbN1P25l838XhYaOLrwsOmDv9g4QpGoQ",
+                                                    "data": {
+                                                        "first": {
+                                                            "value": "你有新的订单!",
+                                                            "color": "#173177"
+                                                        },
+                                                        "productType": {
+                                                            "value": "订单号",
+                                                            "color": "#173177"
+                                                        },
+                                                        "name": {
+                                                            "value": "非卖品",
+                                                            "color": "#173177"
+                                                        },
+                                                        "number": {
+                                                            "value": prodPriceArray.length,
+                                                            "color": "#173177"
+                                                        },
+                                                        "expDate": {
+                                                            "value": "永久",
+                                                            "color": "#173177"
+                                                        },
+                                                        "remark": {
+                                                            "value": "订单总金额:"+totalPrice,
+                                                            "color": "#173177"
+                                                        }
+                                                    }
+                                                };
+                                                console.log(data);
+                                                mpUtil.sendTemplateMessage(data, function(code, msg) {
+                                                    console.log(msg);
+                                                });
+                                            }
+                                            else {
+                                                console.log("找不到店主信息");
+                                            }
+                                            connection.release();
+                                            res.json(rsp);
+                                        });
                                     }
                                     else { 
                                         rsp = {
                                             code: 1205,
                                             msg: '下单失败'
                                         };
+                                        connection.release();
+                                        res.json(rsp);
                                     }
-                                    connection.release();
-                                    res.json(rsp);
                                 });
                             }
                         }

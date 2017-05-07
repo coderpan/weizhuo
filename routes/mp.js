@@ -2,7 +2,8 @@ var express = require('express');
 var router = express.Router();
 var https = require('https');
 var iconv = require("iconv-lite"); 
-var mpUtil = require("./mpUtil.js");
+var mpUtil = require("./mpUtil");
+var mpDao = require("../dao/mpdao");
 
 /**
  * @api {get} /api/mp/key 通过code获取openID,并自动跳转到小铺首页
@@ -14,36 +15,32 @@ var mpUtil = require("./mpUtil.js");
  *
  */
 router.get('/key', function(req, res1, next) {
-
     var path = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx43fff1902c387d5d&secret=d3bc9071271f0ff61facec62bad976c8&code=' + req.query.code + '&grant_type=authorization_code';
     var redirectURI = 'https://www.wxpuu.com/business/seller/index.html';//req.query.state;
-    console.log('change 1' + req.query.state);
-    console.log(redirectURI);
-    console.log(path);
-		https.get(path, function(res) {
-		    console.log("onResponse");
-		  	var reqData = [];
-		    var size = 0;
-	      res.on('data', function(data) {
-	          reqData.push(data);
-	          size += data.length;
-	      });
-	      res.on('end', function() {
-	          var sss = Buffer.concat(reqData, size);
-	          var result = iconv.decode(sss, "utf8");
-	          console.log(result);
-	          var json = JSON.parse(result);
-	          console.log(json);
-	          //return res1.json(result);
-	          //return res1.redirect(redirectURI);
-	          if (redirectURI) {
-                  console.log("AAAA " + redirectURI + '?openid=' + json.openid + '&access_token=' + json.access_token);
-		          res1.writeHead(302, {'Location': redirectURI + '?openid=' + json.openid + '&access_token=' + json.access_token});
-							res1.end();
-						} else {
-							return res1.json(result);
-						}
-	      });
+    https.get(path, function(res) {
+        var reqData = [];
+        var size = 0;
+        res.on('data', function(data) {
+                reqData.push(data);
+                size += data.length;
+        });
+        res.on('end', function() {
+            var sss = Buffer.concat(reqData, size);
+            var result = iconv.decode(sss, "utf8");
+            var json = JSON.parse(result);
+            console.log(json);
+            if (redirectURI) {
+                mpDao.savetoken(json, function(ret) {
+                    if (ret != 0) 
+                        console.log(ret);
+                });
+                res1.writeHead(302, {'Location': redirectURI + '?openid=' + json.openid + '&access_token=' + json.access_token});
+                res1.end();
+            }
+            else {
+                return res1.json(result);
+            }
+        });
     });
 });
 
@@ -70,10 +67,7 @@ router.get('/key', function(req, res1, next) {
 router.get('/getAuthInfoByCode', function(req, res1, next) {
 
     var path = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx43fff1902c387d5d&secret=d3bc9071271f0ff61facec62bad976c8&code=' + req.query.code + '&grant_type=authorization_code';
-    console.log('change 1' + req.query.state);
-    console.log(path);
 		https.get(path, function(res) {
-		    console.log("onResponse");
 		  	var reqData = [];
 		    var size = 0;
 	      res.on('data', function(data) {
@@ -83,10 +77,12 @@ router.get('/getAuthInfoByCode', function(req, res1, next) {
 	      res.on('end', function() {
 	          var sss = Buffer.concat(reqData, size);
 	          var result = iconv.decode(sss, "utf8");
-	          console.log(result);
 	          var json = JSON.parse(result);
-	          console.log(json);
-						return res1.json(result);
+              mpDao.savetoken(json, function(ret, msg) {
+                  if (ret != 0) 
+                      console.log("%d:%s", ret, msg);
+              });
+              return res1.json(result);
 	      });
     });
 });
@@ -212,7 +208,6 @@ router.get('/getXCXAccessToken', function(req, res1, next) {
 	      res.on('end', function() {
 	          var sss = Buffer.concat(reqData, size);
 	          var result = iconv.decode(sss, "utf8");
-	          console.log(result);
 	          var json = JSON.parse(result);
 	          console.log(json)
 	          return res1.json(result);
@@ -226,7 +221,7 @@ router.get('/getXCXAccessToken', function(req, res1, next) {
  * @apiGroup  mp
  * @apiVersion 0.1.0
  *
- * @apiParam (入参) {String} token 获取到的小程序token
+ * @apiParam (入参) {String} access_token 获取到的小程序token
  *
  * @apiSuccess (出参) {String} pic  二维码图片
  *
@@ -235,15 +230,26 @@ router.get('/getXCXAccessToken', function(req, res1, next) {
 router.get('/getXCXQRCode', function(req, res, next) {
     
     var data = {
-		    "path": "pages/index/index?shopid=7086b7f20b80e980fd519770c98629125fe3641b&shopopenid=oogLjwhPimfaJqGNLr4Kmb_PbKk0", 
+		    "path": "pages/itemList/itemList?shopid="+req.query.shopid,
 		    "width": 480
 		}
     
     mpUtil.getXCXQRCode(req.query.access_token, data, function(code, msg) {
     	if(code == 200) {
-				res.writeHead(200, {'Content-Type':'image/png'});
+    		/*
+				res.writeHead(200, {'Content-Type':'image/jpg'});
 		    res.write(msg,'binary');
 	      res.end();
+	      */
+	      
+	      var str = "data:image/jpeg;base64," + msg;
+	      result = {
+            code: 0,
+            imgData: str
+        }; 
+        
+        return res.json(result);
+        
 	    } else {
 	    	res.send(code, msg);
 	    }
@@ -269,7 +275,7 @@ router.get('/getXCXQRCode', function(req, res, next) {
  */
  
 router.get('/getAccessToken', function(req, res1, next) {
-
+/*
     var path = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx43fff1902c387d5d&secret=d3bc9071271f0ff61facec62bad976c8';
     console.log(path);
 		https.get(path, function(res) {
@@ -288,6 +294,10 @@ router.get('/getAccessToken', function(req, res1, next) {
 	          console.log(json)
 	          return res1.json(result);
 	      });
+    });
+    */
+    mpUtil.getAccessToken(function(result) {
+        return res1.json(result);
     });
 });
 

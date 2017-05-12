@@ -199,7 +199,7 @@ module.exports = {
                                         };
 
                                         //查询店主openid，下发模板消息
-                                        connection.query(sql.shop_queryuserid, req.body.shopid, function(err2, shopres) {
+                                        connection.query(sql.shop_queryuserid, [req.body.shopid], function(err2, shopres) {
                                             if (shopres) {
                                                 console.log(shopres);
                                                 var data = {

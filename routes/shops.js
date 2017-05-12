@@ -88,7 +88,8 @@ router.post('/update', function(req, res, next) {
  * @apiGroup  Shop
  * @apiVersion 0.1.0
  *
- * @apiParam (入参) {String} openid 商户在微小铺公众号下的openid
+ * @apiParam (入参) {String} openid 商户在微小铺公众号下的openid，如果是小程序使用，这里填小程序的openid
+ * @apiParam (入参) {String} shopid 如果是小程序使用，可以指定shopid查询
  * @apiParam (入参) {String} token 商户登录态
  *
  * @apiSuccess (出参) {int} code 接口返回码

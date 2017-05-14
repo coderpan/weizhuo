@@ -1,7 +1,7 @@
 var sql = {
     // shop
 	shop_regist:'INSERT INTO t_user(userid, mobile, type, shopid, createtime) VALUES(?,?,1,?,?)',
-	shop_gen: 'INSERT INTO t_shop(shopid, name, mobile, logo, createtime) VALUES(?,?,?,?,?,?)',
+	shop_gen: 'INSERT INTO t_shop(shopid, name, mobile, logo, createtime) VALUES(?,?,?,?,?)',
     shop_update: 'replace into t_shop(shopid, name, mobile, logo, des, addr) values(?,?,?,?,?,?)',
     shop_queryid: 'select shopid from t_user where userid=?',
     shop_queryuserid: 'select userid from t_user where shopid=?',

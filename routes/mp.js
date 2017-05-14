@@ -28,12 +28,14 @@ router.get('/key', function(req, res1, next) {
             var sss = Buffer.concat(reqData, size);
             var result = iconv.decode(sss, "utf8");
             var json = JSON.parse(result);
+            console.log(json);
             if (redirectURI) {
+                mpDao.savetoken(json, function(ret) {
+                    if (ret != 0) 
+                        console.log(ret);
+                });
                 res1.writeHead(302, {'Location': redirectURI + '?openid=' + json.openid + '&access_token=' + json.access_token});
                 res1.end();
-                mpDao.savetoken(json, function(res2) {
-                    if (res2.code != 0) console.log(res2);
-                });
             }
             else {
                 return res1.json(result);
@@ -65,10 +67,7 @@ router.get('/key', function(req, res1, next) {
 router.get('/getAuthInfoByCode', function(req, res1, next) {
 
     var path = 'https://api.weixin.qq.com/sns/oauth2/access_token?appid=wx43fff1902c387d5d&secret=d3bc9071271f0ff61facec62bad976c8&code=' + req.query.code + '&grant_type=authorization_code';
-    console.log('change 1' + req.query.state);
-    console.log(path);
 		https.get(path, function(res) {
-		    console.log("onResponse");
 		  	var reqData = [];
 		    var size = 0;
 	      res.on('data', function(data) {
@@ -78,9 +77,11 @@ router.get('/getAuthInfoByCode', function(req, res1, next) {
 	      res.on('end', function() {
 	          var sss = Buffer.concat(reqData, size);
 	          var result = iconv.decode(sss, "utf8");
-	          console.log(result);
 	          var json = JSON.parse(result);
-	          console.log(json);
+              mpDao.savetoken(json, function(ret, msg) {
+                  if (ret != 0) 
+                      console.log("%d:%s", ret, msg);
+              });
               return res1.json(result);
 	      });
     });
@@ -207,7 +208,6 @@ router.get('/getXCXAccessToken', function(req, res1, next) {
 	      res.on('end', function() {
 	          var sss = Buffer.concat(reqData, size);
 	          var result = iconv.decode(sss, "utf8");
-	          console.log(result);
 	          var json = JSON.parse(result);
 	          console.log(json)
 	          return res1.json(result);
@@ -277,7 +277,7 @@ router.get('/getXCXQRCode', function(req, res, next) {
  */
  
 router.get('/getAccessToken', function(req, res1, next) {
-
+/*
     var path = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx43fff1902c387d5d&secret=d3bc9071271f0ff61facec62bad976c8';
     console.log(path);
 		https.get(path, function(res) {
@@ -296,6 +296,10 @@ router.get('/getAccessToken', function(req, res1, next) {
 	          console.log(json)
 	          return res1.json(result);
 	      });
+    });
+    */
+    mpUtil.getAccessToken(function(result) {
+        return res1.json(result);
     });
 });
 

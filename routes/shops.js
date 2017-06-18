@@ -133,7 +133,7 @@ router.post('/query', function(req, res, next) {
 });
 
 /**
- * @api {post} /api/shop/insprod 添加/更新商品
+ * @api {post} /api/shop/dealprod 添加/更新商品
  * @apiName dealprod
  * @apiGroup  Shop
  * @apiVersion 0.1.0
@@ -339,6 +339,7 @@ router.post('/prodlist', function(req, res, next) {
  * @apiSuccess (出参) {String} orderlist.orderno 订单号
  * @apiSuccess (出参) {String} orderlist.totalprice 订单总金额,单位分
  * @apiSuccess (出参) {String} orderlist.userid 用户openid
+ * @apiSuccess (出参) {String} orderlist.mobile 用户手机号
  * @apiSuccess (出参) {String} orderlist.detail 订单详情
  * @apiSuccess (出参) {String} orderlist.status 订单状态，0-未付款，1-已付款，2-已退款，3-商家已处理
  *

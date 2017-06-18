@@ -223,6 +223,8 @@ router.get('/getXCXAccessToken', function(req, res1, next) {
  *
  * @apiParam (入参) {String} access_token 获取到的小程序token
  *
+ * @apiParam (入参) {String} shopid 跳转商铺id
+ *
  * @apiSuccess (出参) {String} pic  二维码图片
  *
  *
@@ -378,6 +380,11 @@ router.get('/sendTemplateMessage', function(req, res1, next) {
   var data = {
 		    "touser": "oogLjwhPimfaJqGNLr4Kmb_PbKk0", 
 		    "template_id": "fGHCtqEvZ5nFbN1P25l838XhYaOLrwsOmDv9g4QpGoQ",
+		    "url":"http://weixin.qq.com/download",  
+           "miniprogram":{
+             "appid":"wx3798b69011ebbf2c"
+             /*"pagepath":"index?foo=bar"*/
+           },
 		    "data": {
 		        "first": {
 		            "value": "你有新的订单!",

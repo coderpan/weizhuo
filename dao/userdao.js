@@ -111,6 +111,7 @@ module.exports = {
                                     rsp = {
                                         code: 0,
                                         status: status,
+                                        mobile: result[0].mobile,
                                         size: result.length,
                                         shoplist: result
                                     };
@@ -122,6 +123,7 @@ module.exports = {
                                         msg:'查询用户信息失败'
                                     };
                                 }
+                                console.log(rsp);
                                 res.json(rsp);
                                 connection.release();
                             });
@@ -150,8 +152,91 @@ module.exports = {
 		});
 	},
 
+	update(req, res, next) {
+        if (!req.body.openid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+			connection.query(sql.user_update, [req.body.mobile, req.body.openid], function(err, result) {
+                if (result) {
+                    rsp = {
+                        code: 0,
+                        msg:'用户更新成功'
+                    };
+                }
+                else {
+                    console.error("update error, ret:" + err.message);
+                    rsp = {
+                        code: 1240,
+                        msg:'用户更新失败'
+                    };
+                }
+                res.json(rsp);
+                connection.release();
+			});
+		});
+	},
+
+	shopidentifyquery(req, res, next) {
+        if (!req.body.openid || !req.body.shopid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+			connection.query(sql.user_shopidentifyquery, [req.body.shopid], function(err, result) {
+                if (result && result.length) {
+                    var identify = 0;
+                    if (result[0].employee.indexOf(req.body.openid) >= 0) {
+                        identify = 1;
+                    }
+                    rsp = {
+                        code: 0,
+                        msg:'用户身份查询成功',
+                        ident: identify
+                    };
+                }
+                else {
+                    console.error("select error");
+                    rsp = {
+                        code: 1250,
+                        msg:'用户身份查询失败'
+                    };
+                }
+                res.json(rsp);
+                connection.release();
+			});
+		});
+	},
+
 	order(req, res, next) {
-        if (!req.body.openid || !req.body.shopid || !req.body.prodlist || !req.body.prodlist.length) {
+        if (!req.body.openid || !req.body.shopid || !req.body.mobile || !req.body.prodlist || !req.body.prodlist.length) {
             result = {
                 code: 99,
                 msg:'参数错误'
@@ -189,7 +274,7 @@ module.exports = {
                             if (index == prodPriceArray.length) {
                                 var detail = JSON.stringify(prodPriceArray);
                                 connection.query(sql.user_order, [orderno, req.body.openid, 
-                                                                    req.body.shopid, totalPrice, detail,new Date().getTime()/1000], 
+                                                                    req.body.shopid, totalPrice, req.body.mobile, detail, new Date().getTime()/1000], 
                                 function(err, orderres) {
                                     if (orderres) {
                                         rsp = {
@@ -383,7 +468,11 @@ module.exports = {
                 connection.query(sqlstr, [req.body.openid, req.body.pageno?(req.body.pageno-1):0, req.body.pagesize?req.body.pagesize:10], function(err, result) {
                     if (result) {
                         for (var k = 0; k < result.length; ++k) {
-                            result[k].detail = JSON.parse(result[k].detail);
+                            var detail = JSON.parse(result[k].detail);
+                            if (req.body.shopid) {
+                                if (detail.shopid != req.body.shopid || detail.status != 0) continue;
+                            }
+                            result[k].detail = detail;
                         }
                         rsp = {
                             code: 0,
@@ -402,6 +491,45 @@ module.exports = {
                     connection.release();
                 });
             }
+        });
+    },
+
+	ordercancel(req, res, next) {
+        if (!req.body.openid || !req.body.orderno) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+            connection.query(sql.user_order_cancel, [req.body.orderno], function(err, result) {
+                if (result) {
+                    rsp = {
+                        code: 0
+                    };
+                }
+                else {
+                    console.error("select error, ret:" + err.message);
+                    rsp = {
+                        code: 1060,
+                        msg:'取消订单失败'
+                    };
+                }
+                res.json(rsp);
+                connection.release();
+            });
         });
     }
 };

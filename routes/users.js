@@ -15,35 +15,16 @@ var userdao = require('../dao/userdao.js');
  * @apiSuccess (出参) {String} code 接口返回码
  * @apiSuccess (出参) {int} size 关注店铺的条数
  * @apiSuccess (出参) {String} status 用户状态，0-正常，1-异常
- * @apiSuccess (出参) {String} shopid 商户店铺唯一标识，如果为空，表示普通用户
+ * @apiSuccess (出参) {String} mobile 用户手机号
  * @apiSuccess (出参) {String} shoplist 用户关注的店铺列表
  *
  * @apiSuccessExample 成功返回：
     {
         "code": 0,
         "size": 2,
-        "shoplist": [
-            {
-                "shopid": "7086b7f20b80e980fd519770c98629125fe3641b",
-                "name": "第十三",
-                "mobile": "433",
-                "logo": "https://www.wxpuu.com/files/thumbnail-1490754949719.jpg",
-                "des": "",
-                "addr": "",
-                "status": 0,
-                "createtime": 0
-            },
-            {
-                "shopid": "b1ac88c50910963aaa653113a33a8c6f721842b8",
-                "name": "philpan",
-                "mobile": "1388888889",
-                "logo": "www.baidu.com",
-                "des": "aaaaabbbb",
-                "addr": "ssswwww",
-                "status": 0,
-                "createtime": 0
-            }
-        ]
+        "status": "0",
+        "mobile": "13823457869",
+        "shoplist": "|aaaa|bbbb"
     }
  *
  * @apiErrorExample 失败返回
@@ -70,6 +51,7 @@ router.post('/query', function(req, res, next) {
  * @apiVersion 0.1.0
  *
  * @apiParam (入参) {String} openid 用户的openid
+ * @apiParam (入参) {String} mobile 用户的手机号
  * @apiParam (入参) {String} token 用户登录态
  * @apiParam (入参) {String} shopid 店铺ID
  * @apiParam (入参) {Object[]} prodlist 购物清单列表
@@ -151,6 +133,7 @@ router.post('/attent', function(req, res, next) {
  * @apiParam (入参) {String} openid 用户的openid
  * @apiParam (入参) {String} token 用户登录态
  * @apiParam (入参) {String} orderno 订单号,如为空或不传，则查询用户所有的订单
+ * @apiParam (入参) {String} shopid 店铺id,如为空或不传，则查询用户所有的订单
  * @apiParam (入参) {int} pageno 页码，从1开始
  * @apiParam (入参) {int} pagesize 每页显示订单数
  *
@@ -232,4 +215,110 @@ router.post('/regist', function(req, res, next) {
     console.log(req.body);
 	userdao.regist(req, res, next);
 });
+
+/**
+ * @api {post} /api/user/update  用户更新
+ * @apiName update
+ * @apiGroup  User
+ * @apiVersion 0.1.0
+ *
+ * @apiParam (入参) {String} openid 用户的openid
+ * @apiParam (入参) {String} token 用户登录态
+ * @apiParam (入参) {String} mobile 用户手机号
+ *
+ * @apiSuccess (出参) {String} code 接口返回码
+ *
+ * @apiSuccessExample 成功返回：
+ *     {
+         "code":0
+ *     }
+ *
+ * @apiErrorExample 失败返回
+ *     {
+ *       "code": 1240,
+ *       "msg": "用户更新失败"
+ *     }
+ *
+ * @apiError (错误码) 0 成功
+ * @apiError (错误码) 99 参数错误
+ * @apiError (错误码) 100 登录态校验失败
+ * @apiError (错误码) 101 未知错误
+ * @apiError (错误码) 1240 用户更新失败
+ */
+router.post('/update', function(req, res, next) {
+    console.log(req.body);
+	userdao.update(req, res, next);
+});
+
+/**
+ * @api {post} /api/user/shopidentifyquery 用户店铺身份查询
+ * @apiName shopidentifyquery
+ * @apiGroup  User
+ * @apiVersion 0.1.0
+ *
+ * @apiParam (入参) {String} openid 用户的openid
+ * @apiParam (入参) {String} shopid 店铺标识
+ * @apiParam (入参) {String} token 用户登录态
+ *
+ * @apiSuccess (出参) {String} code 接口返回码
+ * @apiSuccess (出参) {int} ident 身份，1-员工，0-普通用户
+ *
+ * @apiSuccessExample 成功返回：
+ *     {
+         "code":0
+         "msg":"ok",
+         "ident":1
+ *     }
+ *
+ * @apiErrorExample 失败返回
+ *     {
+ *       "code": 1250,
+ *       "msg": "用户店铺身份查询失败"
+ *     }
+ *
+ * @apiError (错误码) 0 成功
+ * @apiError (错误码) 99 参数错误
+ * @apiError (错误码) 100 登录态校验失败
+ * @apiError (错误码) 101 未知错误
+ * @apiError (错误码) 1250 用户店铺身份查询失败
+ */
+router.post('/shopidentifyquery', function(req, res, next) {
+    console.log(req.body);
+	userdao.shopidentifyquery(req, res, next);
+});
+
+/**
+ * @api {post} /api/user/ordercancel  取消订单
+ * @apiName ordercancel
+ * @apiGroup  User
+ * @apiVersion 0.1.0
+ *
+ * @apiParam (入参) {String} openid 用户的openid
+ * @apiParam (入参) {String} token 用户登录态
+ * @apiParam (入参) {String} orderno 订单号
+ *
+ * @apiSuccess (出参) {String} code 接口返回码
+ *
+ * @apiSuccessExample 成功返回：
+ *     {
+         "code":0
+ *     }
+ *
+ * @apiErrorExample 失败返回
+ *     {
+ *       "code": 1060,
+ *       "msg": "取消订单失败"
+ *     }
+ *
+ * @apiError (错误码) 0 成功
+ * @apiError (错误码) 99 参数错误
+ * @apiError (错误码) 100 登录态校验失败
+ * @apiError (错误码) 101 未知错误
+ * @apiError (错误码) 1060 取消订单失败
+ */
+router.post('/ordercancel', function(req, res, next) {
+    console.log(req.body);
+	userdao.ordercancel(req, res, next);
+});
+
 module.exports = router;

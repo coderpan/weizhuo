@@ -223,6 +223,8 @@ router.get('/getXCXAccessToken', function(req, res1, next) {
  *
  * @apiParam (入参) {String} access_token 获取到的小程序token
  *
+ * @apiParam (入参) {String} path 小程序页面路径(不传默认认为打开店铺的路径)
+ *
  * @apiParam (入参) {String} shopid 跳转商铺id
  *
  * @apiSuccess (出参) {String} pic  二维码图片
@@ -231,8 +233,12 @@ router.get('/getXCXAccessToken', function(req, res1, next) {
  */
 router.get('/getXCXQRCode', function(req, res, next) {
     
+    var path = req.query.path;
+    if (!path || path.length <= 0) {
+    	path = 'pages/itemList/itemList';
+    }
     var data = {
-		    "path": "pages/itemList/itemList?shopid="+req.query.shopid,
+		    "path": path+"?shopid="+req.query.shopid,
 		    "width": 480
 		}
     

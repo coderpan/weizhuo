@@ -234,11 +234,25 @@ router.get('/getXCXAccessToken', function(req, res1, next) {
 router.get('/getXCXQRCode', function(req, res, next) {
     
     var path = req.query.path;
+    var shopid = req.query.shopid;
+    var vericode = req.query.vericode;
+    var currentConnectStr = '?';
     if (!path || path.length <= 0) {
     	path = 'pages/itemList/itemList';
     }
+    
+    if (shopid) {
+    	path = path + currentConnectStr + shopid;
+    	currentConnectStr = '&';
+    }
+    
+    if (vericode) {
+    	path = path + currentConnectStr + vericode;
+    	currentConnectStr = '&';
+    }
+    
     var data = {
-		    "path": path+"?shopid="+req.query.shopid,
+		    "path": path,
 		    "width": 480
 		}
     

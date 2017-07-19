@@ -242,12 +242,12 @@ router.get('/getXCXQRCode', function(req, res, next) {
     }
     
     if (shopid) {
-    	path = path + currentConnectStr + shopid;
+    	path = path + currentConnectStr + 'shopid=' + shopid;
     	currentConnectStr = '&';
     }
     
     if (vericode) {
-    	path = path + currentConnectStr + vericode;
+    	path = path + currentConnectStr + 'vericode=' + vericode;
     	currentConnectStr = '&';
     }
     
@@ -255,6 +255,9 @@ router.get('/getXCXQRCode', function(req, res, next) {
 		    "path": path,
 		    "width": 480
 		}
+		
+		console.log('getXCXQRCode path =');
+		console.log(path);
     
     mpUtil.getXCXQRCode(req.query.access_token, data, function(code, msg) {
     	if(code == 200) {

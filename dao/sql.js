@@ -7,7 +7,7 @@ var sql = {
     shop_queryuserid: 'select userid from t_user where shopid=?',
     shop_query: 'select shopid, name, mobile, logo, des, addr, status,createtime from t_shop where shopid=?',
     shop_query_all: 'select shopid, name, mobile, logo, des, addr, status, createtime from t_shop where shopid in ',
-    shop_dealprod: 'replace into t_product(shopid, classid, prodid, name, descr, price, image, status, createtime) values(?,?,?,?,?,?,?,?,?)',
+    shop_dealprod: 'replace into t_product(shopid, classid, prodid, name, descr, price, image, dealuserid, status, createtime) values(?,?,?,?,?,?,?,?,?,?)',
     shop_maxclassid: 'select coalesce(max(classid),0)+1 as classid from t_prodclass where shopid=?',
     shop_dealclass: 'replace into t_prodclass(shopid, classid, name, createtime) values(?,?,?,?)',
     shop_classlist: 'select classid, name from t_prodclass where shopid=? and name <> \'\'',
@@ -27,10 +27,15 @@ var sql = {
     user_order_query_orderno: 'select orderno,shopid,price,detail,status,createtime from t_order where orderno=?',
     user_order_query_userid: 'select orderno,shopid,price,detail,status,createtime from t_order where userid=? order by createtime desc limit ?,?',
 	user_update:'update t_user set mobile = ? where userid = ?',
-    user_shopidentifyquery:'select employee from t_shop where shopid=?',
+    //user_shopidentifyquery:'select employee from t_shop where shopid=?',
+    user_shopidentifyquery:'select prodid, name, descr, image, status from t_product where shopid=? and dealuserid=?',
     user_order_cancel: 'update t_order set status=2 where orderno=? limit 1',
 
     // mp
     save_token: 'replace into t_wxtoken(userid, accesstoken, refreshtoken, expiresec, createtime) values(?, ?, ?, ?, ?)',
+
+    //common
+    sms_send: 'replace into t_sms(mobile, verifycode, createtime) values(?, ?, ?)',
+    sms_query: 'select verifycode, createtime from t_sms where mobile=?',
 };
 module.exports = sql;

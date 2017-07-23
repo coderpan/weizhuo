@@ -51,12 +51,14 @@ var shops = require('./routes/shops');
 var users = require('./routes/users');
 var upload = require('./routes/upload.js');
 var mp = require('./routes/mp');
+var sms = require('./routes/sms');
 
 app.use('/', index);
 app.use('/api/shop', shops);
 app.use('/api/user', users);
 app.use('/api/upload', upload.dataInput);
 app.use('/api/mp', mp);
+app.use('/api/sms', sms);
 
 // 打印异常日志
 process.on('uncaughtException', error => {

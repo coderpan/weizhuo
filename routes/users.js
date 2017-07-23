@@ -268,6 +268,14 @@ router.post('/update', function(req, res, next) {
          "code":0
          "msg":"ok",
          "ident":1
+         "detail":{
+         {
+            "prodid": "696dacf332a3daa81c68d58ab62b4443640be062",
+            "name": "1234",
+            "descr": "1234",
+            "image": "https://www.wxpuu.com/files/thumbnail-1500735993408.png",
+            "status": 0
+         }
  *     }
  *
  * @apiErrorExample 失败返回

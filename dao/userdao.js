@@ -98,9 +98,10 @@ module.exports = {
                     if (result.length) {
                         status = result[0].status;
                         shopid = result[0].shopid;
+                        mobile = result[0].mobile;
                         var shopids  = result[0].shoplist;
                         if (!shopids.length) {
-                            shopids = "|7086b7f20b80e980fd519770c98629125fe3641b|a679db45b2034ee5b35a71bddd02df772253c468";
+                            shopids = "|7086b7f20b80e980fd519770c98629125fe3641b|a679db45b2034ee5b35a71bddd02df772253c468|d8753ccfa54cd1414c07b3740397411443361103";
                         }
                         if (shopids.length) {
                             shopids = "('" + shopids.substring(1).replace(/\|/g,"','") + "')";
@@ -111,7 +112,7 @@ module.exports = {
                                     rsp = {
                                         code: 0,
                                         status: status,
-                                        mobile: result[0].mobile,
+                                        mobile: mobile,
                                         size: result.length,
                                         shoplist: result
                                     };
@@ -210,7 +211,8 @@ module.exports = {
             }
 
             var rsp;
-			connection.query(sql.user_shopidentifyquery, [req.body.shopid], function(err, result) {
+			connection.query(sql.user_shopidentifyquery, [req.body.shopid, req.body.openid], function(err, result) {
+                /*
                 if (result && result.length) {
                     var identify = 0;
                     if (result[0].employee.indexOf(req.body.openid) >= 0) {
@@ -221,6 +223,27 @@ module.exports = {
                         msg:'用户身份查询成功',
                         ident: identify
                     };
+                }
+                else {
+                    console.error("select error");
+                    rsp = {
+                        code: 1250,
+                        msg:'用户身份查询失败'
+                    };
+                }
+                */
+                if (result) {
+                    rsp = {
+                        code: 0,
+                        msg:'用户身份查询成功'
+                    };
+                    if (result.length) {
+                        rsp['indent'] = 1;
+                        rsp['detail'] = result[0];
+                    }
+                    else {
+                        rsp['indent'] = 0;
+                    }
                 }
                 else {
                     console.error("select error");

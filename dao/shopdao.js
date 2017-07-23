@@ -247,7 +247,7 @@ module.exports = {
             }
 			connection.query(sql.shop_dealprod, [req.body.shopid, req.body.classid, 
                                                  prodid, req.body.name, req.body.desc, 
-                                                 req.body.price, req.body.image, req.body.status, new Date().getTime()/1000], 
+                                                 req.body.price, req.body.image, req.body.dealuserid, req.body.status, new Date().getTime()/1000], 
              function(err, result) {
                 if (result) {
                     rsp = {
@@ -453,11 +453,12 @@ module.exports = {
                             if (result) {
                                 var dealcount = 0, nodealcount = 0, totalcount = 0;
                                 for (var j = 0; j < result.length; ++j) {
+                                    console.log(result[j]);
                                     if (result[j].st == 3) 
-                                        dealcount = result[0].cnt;
+                                        dealcount = result[j].cnt;
                                     else if(result[j].st == 1) 
-                                        nodealcount = result[0].cnt;
-                                    totalcount += result[0].cnt;
+                                        nodealcount = result[j].cnt;
+                                    totalcount += result[j].cnt;
                                 }
                                 if (result.length && req.body.pageno) {
                                     connection.query(sql.shop_order_query, [req.body.shopid, req.body.date, req.body.pageno?(req.body.pageno-1):0, req.body.pagesize?req.body.pagesize:10], function(err, result) {

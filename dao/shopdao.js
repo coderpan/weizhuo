@@ -218,6 +218,82 @@ module.exports = {
         });
 	},
 
+	dealemployee(req, res, next) {
+        if (!req.body.openid || !req.body.shopid || !req.body.classid) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+            var currentMs = new Date().getTime();
+            var prodid = req.body.prodid;
+            if (!prodid) {
+                // 查询是否重复添加
+                connection.query(sql.shop_queryemployee, [req.body.shopid, req.body.dealuserid], function(err, result) {
+                    if (result) {
+                        if (result[0].cnt != 0) {
+                            rsp = {
+                                code: 1031,
+                                msg: "不能添加重复商品"
+                            };
+                            connection.release();
+                            return res.json(rsp);
+                        }
+                        else {
+                            var hasher=crypto.createHash("sha1");
+                            hasher.update(req.body.shopid+currentMs+"productid");
+                            prodid=hasher.digest('hex');
+                        }
+                    }
+                    else {
+                        console.error("select error, ret:" + err.message);
+                        rsp = {
+                            code: 1030,
+                            msg:'添加/更新商品信息失败'
+                        };
+                        connection.release();
+                        return res.json(rsp);
+                    }
+                });
+            }
+            else {
+                connection.query(sql.shop_dealprod, [req.body.shopid, req.body.classid, 
+                                                     prodid, req.body.name, req.body.desc, 
+                                                     req.body.price, req.body.image, req.body.dealuserid, req.body.status, new Date().getTime()/1000], 
+                 function(err, result) {
+                    if (result) {
+                        rsp = {
+                            code: 0,
+                            prodid: prodid
+                        };
+                    }
+                    else {
+                        console.error("replace error, ret:" + err.message);
+                        rsp = {
+                            code: 1030,
+                            msg:'添加/更新商品信息失败'
+                        };
+                    }
+                    res.json(rsp);
+                    connection.release();
+                });
+            }
+        });
+	},
+
 	dealprod(req, res, next) {
         if (!req.body.openid || !req.body.shopid || !req.body.classid) {
             result = {

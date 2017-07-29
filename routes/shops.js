@@ -174,7 +174,52 @@ router.post('/query', function(req, res, next) {
 router.post('/dealprod', function(req, res, next) {
     console.log(req.body);
 	shopdao.dealprod(req, res, next);
-})
+});
+
+/**
+ * @api {post} /api/shop/dealemployee 添加/更新店员
+ * @apiName dealemployee
+ * @apiGroup  Shop
+ * @apiVersion 0.1.0
+ *
+ * @apiParam (入参) {String} openid 商户在微小铺公众号下的openid
+ * @apiParam (入参) {String} token 商户登录态
+ * @apiParam (入参) {String} shopid 商户ID
+ * @apiParam (入参) {int} classid 分类ID
+ * @apiParam (入参) {String} prodid 商品ID，为空表示新增商品，反之修改商品
+ * @apiParam (入参) {String} name 商品名称
+ * @apiParam (入参) {String} desc 商品描述 
+ * @apiParam (入参) {String} price 商品价格，单位分 
+ * @apiParam (入参) {String} image 商品图片地址
+ * @apiParam (入参) {String} status  商品状态，0-上架，1-下架
+ * @apiParam (入参) {String} dealuserid  添加商品的用户标识,可以不传
+ *
+ * @apiSuccess (出参) {int} code 接口返回码
+ * @apiSuccess (出参) {String} prodid 商品唯一标识
+ *
+ * @apiSuccessExample 成功返回：
+ *     {
+         "code":0,
+ *       "prodid": "5fgdKsdfIUHDFHdss33456"
+ *     }
+ *
+ * @apiErrorExample 失败返回
+ *     {
+ *       "code": 1030,
+ *       "msg": "添加或更新商品失败"
+ *     }
+ *
+ * @apiError (错误码) 0 成功
+ * @apiError (错误码) 99 参数错误
+ * @apiError (错误码) 100 登录态校验失败
+ * @apiError (错误码) 101 未知错误
+ * @apiError (错误码) 1030  添加或更新商品失败
+ * @apiError (错误码) 1031  不能添加重复商品
+ */
+router.post('/dealemployee', function(req, res, next) {
+    console.log(req.body);
+	shopdao.dealemployee(req, res, next);
+});
 
 /**
  * @api {post} /api/shop/dealclass 添加/更新/删除分类

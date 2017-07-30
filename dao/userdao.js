@@ -238,11 +238,11 @@ module.exports = {
                         msg:'用户身份查询成功'
                     };
                     if (result.length) {
-                        rsp['indent'] = 1;
+                        rsp['ident'] = 1;
                         rsp['detail'] = result[0];
                     }
                     else {
-                        rsp['indent'] = 0;
+                        rsp['ident'] = 0;
                     }
                 }
                 else {

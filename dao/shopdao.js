@@ -645,5 +645,58 @@ module.exports = {
             });
 
         });
+    },
+
+	employeeorderdeal(req, res, next) {
+        if (!req.body.openid || !req.body.shopid || !req.body.orderno) {
+            result = {
+                code: 99,
+                msg:'参数错误'
+            }; 
+            return res.json(result);
+        }
+
+		pool.getConnection(function(err, connection) {
+            if(err) {
+                console.log(err);
+                result = {
+                    code: 1000,
+                    msg:'未知错误'
+                }; 
+                return res.json(result);
+            }
+
+            var rsp;
+            // 店员身份认证
+			connection.query(sql.user_shopidentifyquery, [req.body.shopid, req.body.openid], function(err, result) {
+                if (result && result.length) {
+                    connection.query(sql.shop_order_deal, [req.body.orderno], function(err, result) {
+                        if (result) {
+                            rsp = {
+                                code: 0
+                            };
+                        }
+                        else {
+                            console.error("select error, ret:" + err.message);
+                            rsp = {
+                                code: 1045,
+                                msg:'处理订单失败'
+                            };
+                        }
+                        res.json(rsp);
+                        connection.release();
+                    });
+                }
+                else {
+                    rsp = {
+                        code: 1045,
+                        msg:'店员身份认证失败'
+                    };
+                    res.json(rsp);
+                    connection.release();
+                }
+            });
+
+        });
     }
 };

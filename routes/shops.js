@@ -427,7 +427,7 @@ router.post('/orderquery', function(req, res, next) {
 });
 
 /**
- * @api {post} /api/shop/orderdeal  处理订单
+ * @api {post} /api/shop/orderdeal  商家处理订单
  * @apiName orderdeal
  * @apiGroup  Shop
  * @apiVersion 0.1.0
@@ -461,4 +461,38 @@ router.post('/orderdeal', function(req, res, next) {
 	shopdao.orderdeal(req, res, next);
 });
 
+/**
+ * @api {post} /api/shop/employeeorderdeal 店员处理订单
+ * @apiName employeeorderdeal
+ * @apiGroup  Shop
+ * @apiVersion 0.1.0
+ *
+ * @apiParam (入参) {String} openid 用户的openid
+ * @apiParam (入参) {String} token 用户登录态
+ * @apiParam (入参) {String} shopid 店铺ID
+ * @apiParam (入参) {String} orderno 订单号
+ *
+ * @apiSuccess (出参) {String} code 接口返回码
+ *
+ * @apiSuccessExample 成功返回：
+ *     {
+         "code":0
+ *     }
+ *
+ * @apiErrorExample 失败返回
+ *     {
+ *       "code": 1045,
+ *       "msg": "处理订单失败"
+ *     }
+ *
+ * @apiError (错误码) 0 成功
+ * @apiError (错误码) 99 参数错误
+ * @apiError (错误码) 100 登录态校验失败
+ * @apiError (错误码) 101 未知错误
+ * @apiError (错误码) 1045 处理订单失败
+ */
+router.post('/employeeorderdeal', function(req, res, next) {
+    console.log(req.body);
+	shopdao.employeeorderdeal(req, res, next);
+});
 module.exports = router;
